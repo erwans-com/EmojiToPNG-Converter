@@ -1,0 +1,5 @@
+{
+  "name": "EmojiToPNG Notion Clone",
+  "description": "A Notion-styled tool to browse 1635 emojis and convert them to high-resolution 1024px PNGs using data from Supabase.",
+  "requestFramePermissions": []
+}
