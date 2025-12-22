@@ -13,10 +13,19 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('All');
 
-  // Extract Categories
+  // Extract Categories and sort by count (descending)
   const categories = useMemo(() => {
-      const cats = new Set(data.map(item => item.category).filter(Boolean) as string[]);
-      return ['All', ...Array.from(cats).sort()];
+      const counts: Record<string, number> = {};
+      
+      data.forEach(item => {
+          if (item.category) {
+              counts[item.category] = (counts[item.category] || 0) + 1;
+          }
+      });
+
+      const sortedCats = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+      
+      return ['All', ...sortedCats];
   }, [data]);
 
   const filteredData = data.filter(item => {
