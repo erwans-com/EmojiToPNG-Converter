@@ -4,13 +4,14 @@
   "description": "Emoji to PNG Converter",
   "main": "index.tsx",
   "scripts": {
-    "start": "serve"
+    "start": "serve",
+    "build": "echo 'No build step required for this static setup'"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "react-router-dom": "6.22.3",
-    "lucide-react": "0.344.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "lucide-react": "^0.344.0"
   },
   "devDependencies": {
     "serve": "^14.2.1"
