@@ -82,9 +82,16 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      const records = await fetchEmojis();
-      setData(records);
-      setLoading(false);
+      try {
+        const records = await fetchEmojis();
+        setData(records);
+      } catch (e) {
+        console.error("Critical failure loading emoji data:", e);
+        // Ensure we stop loading state even on catastrophic failure
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, []);

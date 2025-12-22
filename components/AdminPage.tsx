@@ -1,25 +1,30 @@
 import React, { useState, useRef } from 'react';
 import { saveEmojisCSV, clearEmojisData } from '../services/api';
-import { Save, Trash2, Database, Upload } from 'lucide-react';
+import { Save, Trash2, Database, Upload, AlertCircle } from 'lucide-react';
 
 export const AdminPage: React.FC = () => {
   const [csvContent, setCsvContent] = useState('');
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  // Use a fallback if useRef is failing (though importmap fix should resolve it)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImport = () => {
     if (!csvContent.trim()) {
         setStatus('error');
+        setErrorMessage("CSV content cannot be empty.");
         return;
     }
     try {
         saveEmojisCSV(csvContent);
         setStatus('success');
+        setErrorMessage('');
         // Reload to reflect changes
         setTimeout(() => window.location.reload(), 1000);
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
         setStatus('error');
+        setErrorMessage(e.message || "Failed to parse CSV. Please check the format.");
     }
   };
 
@@ -38,11 +43,19 @@ export const AdminPage: React.FC = () => {
     reader.onload = (e) => {
       const content = e.target?.result as string;
       setCsvContent(content);
+      // Reset status when new file loads
+      setStatus('idle');
+      setErrorMessage('');
     };
     reader.readAsText(file);
     
-    // Reset input so same file can be selected again if needed
     event.target.value = '';
+  };
+
+  const triggerFileUpload = () => {
+      if (fileInputRef && fileInputRef.current) {
+          fileInputRef.current.click();
+      }
   };
 
   return (
@@ -71,7 +84,7 @@ export const AdminPage: React.FC = () => {
                       onChange={handleFileUpload}
                   />
                   <button 
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={triggerFileUpload}
                       className="flex items-center gap-2 px-3 py-1.5 text-xs bg-[#F7F7F5] hover:bg-[#E9E9E7] text-[#37352F] rounded border border-[#E9E9E7] transition-colors"
                   >
                       <Upload size={14} />
@@ -81,7 +94,7 @@ export const AdminPage: React.FC = () => {
           </div>
 
           <textarea 
-            className="w-full h-64 p-3 border border-[#E9E9E7] rounded font-mono text-xs bg-[#F7F7F5] focus:outline-none focus:ring-2 focus:ring-[#2383E2] resize-y"
+            className="w-full h-64 p-3 border border-[#E9E9E7] rounded font-mono text-xs bg-[#F7F7F5] focus:outline-none focus:ring-2 focus:ring-[#2383E2] resize-y whitespace-pre"
             placeholder="slug,emoji,name,description..."
             value={csvContent}
             onChange={(e) => setCsvContent(e.target.value)}
@@ -111,14 +124,18 @@ export const AdminPage: React.FC = () => {
               </div>
           )}
           {status === 'error' && (
-              <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded border border-red-200">
-                  Error importing data. Please check content.
+              <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded border border-red-200 flex items-start gap-2">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <div>
+                      <p className="font-semibold">Error importing data</p>
+                      <p>{errorMessage}</p>
+                  </div>
               </div>
           )}
       </div>
       
       <div className="text-[#9B9A97] text-xs">
-          <p>Note: Data is saved to your browser's Local Storage. Clearing your cache will revert to the default dataset.</p>
+          <p>Note: Data is saved to your browser's Local Storage. If parsing fails, your previous data remains safe.</p>
       </div>
     </div>
   );
