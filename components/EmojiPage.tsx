@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { EmojiRecord } from '../types';
 import { Download, RefreshCw, Image as ImageIcon, Lightbulb, BookOpen, Hash, CornerDownRight, Copy, Check, Info } from 'lucide-react';
@@ -74,6 +74,39 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
       }
   };
 
+  // Helper to get related emojis array safely
+  const getRelatedEmojis = (related?: string | string[]) => {
+      if (!related) return [];
+      if (Array.isArray(related)) return related;
+      if (typeof related === 'string') return related.split(',');
+      return [];
+  }
+
+  const relatedRecords = useMemo(() => {
+      if (!record || !data.length) return [];
+      
+      const rawList = getRelatedEmojis(record.related_emojis);
+      const uniqueEmojis = new Set<string>();
+      const records: EmojiRecord[] = [];
+
+      rawList.forEach((char) => {
+          const cleanChar = char.trim().replace(/['"]/g, ''); // Basic cleanup
+          if (!cleanChar) return;
+          
+          // Avoid duplicates and current emoji
+          if (cleanChar === record.emoji || uniqueEmojis.has(cleanChar)) return;
+          
+          // Find record to ensure we can link to it
+          const found = data.find(d => d.emoji === cleanChar);
+          if (found) {
+              uniqueEmojis.add(cleanChar);
+              records.push(found);
+          }
+      });
+      
+      return records;
+  }, [record, data]);
+
   if (!record) {
     return (
         <div className="p-12 text-center text-[#9B9A97]">
@@ -107,16 +140,6 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
           </ul>
       );
   };
-
-  // Helper to get related emojis array safely
-  const getRelatedEmojis = (related?: string | string[]) => {
-      if (!related) return [];
-      if (Array.isArray(related)) return related;
-      if (typeof related === 'string') return related.split(',');
-      return [];
-  }
-
-  const relatedList = getRelatedEmojis(record.related_emojis);
 
   return (
     <div className="w-full pb-24 animate-in fade-in duration-300">
@@ -269,14 +292,19 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
             </section>
             
              {/* Related Emojis */}
-            {relatedList.length > 0 && (
+            {relatedRecords.length > 0 && (
                 <section>
                      <h2 className="text-xl font-semibold text-[#37352F] notion-serif mb-4">Related</h2>
                      <div className="flex flex-wrap gap-2">
-                         {relatedList.map((e, i) => (
-                             <span key={i} className="text-2xl cursor-pointer hover:bg-[#E9E9E7] p-2 rounded transition-colors" title="Click to view">
-                                 {e.trim()}
-                             </span>
+                         {relatedRecords.map((item) => (
+                             <button
+                                key={item.id}
+                                onClick={() => navigate(`/emoji/${item.slug}`)}
+                                className="text-3xl cursor-pointer hover:bg-[#E9E9E7] p-3 rounded transition-colors"
+                                title={item.name}
+                             >
+                                 {item.emoji}
+                             </button>
                          ))}
                      </div>
                 </section>
