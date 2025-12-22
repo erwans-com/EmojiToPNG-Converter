@@ -6,8 +6,10 @@ import {
   Plus, 
   ChevronRight, 
   FileText,
-  Database
+  Database,
+  Shuffle
 } from 'lucide-react';
+import { fetchEmojis } from '../services/api';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +25,14 @@ export const Sidebar: React.FC = () => {
       <span className="truncate">{label}</span>
     </div>
   );
+
+  const handleRandom = async () => {
+      const emojis = await fetchEmojis();
+      if (emojis.length > 0) {
+          const random = emojis[Math.floor(Math.random() * emojis.length)];
+          navigate(`/emoji/${random.slug}`);
+      }
+  };
 
   return (
     <div className="w-60 bg-[#F7F7F5] border-r border-[#E9E9E7] flex flex-col h-full flex-shrink-0 transition-all duration-300 ease-in-out">
@@ -49,6 +59,11 @@ export const Sidebar: React.FC = () => {
                 label="Emoji Database" 
                 onClick={() => navigate('/')}
                 active={location.pathname === '/'}
+            />
+            <MenuItem 
+                icon={<Shuffle size={16} />} 
+                label="Random Emoji" 
+                onClick={handleRandom}
             />
         </div>
 

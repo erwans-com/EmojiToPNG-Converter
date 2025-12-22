@@ -4,17 +4,23 @@
   "description": "Emoji to PNG Converter",
   "main": "index.tsx",
   "scripts": {
-    "start": "serve",
-    "build": "echo 'No build step required for this static setup'"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
+    "lucide-react": "0.344.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "6.22.3",
-    "lucide-react": "0.344.0"
+    "react-router-dom": "6.22.3"
   },
   "devDependencies": {
-    "serve": "14.2.1"
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-static-copy": "^1.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

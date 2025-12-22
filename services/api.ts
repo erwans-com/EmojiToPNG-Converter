@@ -1,4 +1,6 @@
 import { EmojiRecord } from '../types';
+// @ts-ignore
+import defaultCsvData from '../emojis.csv?raw';
 
 const STORAGE_KEY_CSV = 'emoji_db_csv';
 
@@ -17,27 +19,16 @@ export const fetchEmojis = async (): Promise<EmojiRecord[]> => {
     console.error("Failed to parse local storage CSV:", e);
   }
 
-  // 2. Fallback to static CSV file (Default behavior)
+  // 2. Fallback to bundled CSV file (Vite raw import)
   try {
-    const response = await fetch('/emojis.csv');
-    if (!response.ok) {
-      console.error(`Failed to fetch CSV: ${response.status} ${response.statusText}`);
-      return [];
+    if (defaultCsvData) {
+        return parseCSV(defaultCsvData);
     }
-    
-    const csvText = await response.text();
-    
-    // Safety check: sometimes 404s return HTML
-    if (csvText.trim().startsWith('<')) {
-        console.error("Fetched content appears to be HTML (likely a 404 page), not CSV.");
-        return [];
-    }
-
-    return parseCSV(csvText);
   } catch (error) {
-    console.error("Failed to fetch emojis:", error);
-    return [];
+    console.error("Failed to load bundled emojis:", error);
   }
+
+  return [];
 };
 
 export const saveEmojisCSV = (csvText: string) => {
