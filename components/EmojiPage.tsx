@@ -53,6 +53,14 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
 
   useEffect(() => {
     if (record) {
+      // Dynamic SEO Updates
+      document.title = `"${record.name}" emoji PNG download ${record.emoji}`;
+      
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+          metaDesc.setAttribute('content', `Download high-quality ${record.emoji} ${record.name} emoji PNG with transparent background. Perfect for designs, social media, Canva, and Figma. Free download.`);
+      }
+
       generateImage(record.emoji);
       setCopied(false);
     }

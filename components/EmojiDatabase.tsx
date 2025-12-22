@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { EmojiRecord } from '../types';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, ArrowUpDown, LayoutGrid } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 interface Props {
   data: EmojiRecord[];
@@ -78,37 +78,17 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
           </div>
       </div>
 
-      {/* Database Controls */}
-      <div className="px-4 md:px-24 mb-0 flex flex-col md:flex-row md:items-center justify-between sticky top-0 bg-white z-10 py-3 border-b border-[#E9E9E7] gap-3">
-         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-             <div className="flex items-center gap-1 text-sm text-[#37352F] hover:bg-[#efefef] px-2 py-1 rounded cursor-pointer shrink-0">
-                 <LayoutGrid size={14} />
-                 <span>View</span>
-             </div>
-             <div className="w-[1px] h-4 bg-[#E9E9E7] mx-1"></div>
-             <div className="flex items-center gap-1 text-sm text-[#37352F] hover:bg-[#efefef] px-2 py-1 rounded cursor-pointer shrink-0">
-                 <Filter size={14} />
-                 <span className="hidden sm:inline">Filter</span>
-             </div>
-             <div className="flex items-center gap-1 text-sm text-[#37352F] hover:bg-[#efefef] px-2 py-1 rounded cursor-pointer shrink-0">
-                 <ArrowUpDown size={14} />
-                 <span className="hidden sm:inline">Sort</span>
-             </div>
-         </div>
-         <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="relative flex-1 md:flex-none">
-                <Search size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#9B9A97]" />
-                <input 
-                    type="text" 
-                    placeholder="Search emojis..." 
-                    className="pl-7 pr-2 py-1.5 text-sm border border-[#E9E9E7] rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-400 placeholder-[#9B9A97] w-full md:w-48 bg-[#F7F7F5] focus:bg-white transition-colors"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-            <button className="bg-[#2383E2] text-white text-sm px-3 py-1.5 rounded hover:bg-[#1d70c2] transition-colors font-medium">
-                New
-            </button>
+      {/* Database Controls (Search Only) */}
+      <div className="px-4 md:px-24 mb-0 flex items-center sticky top-0 bg-white z-10 py-3 border-b border-[#E9E9E7]">
+         <div className="relative w-full">
+            <Search size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#9B9A97]" />
+            <input 
+                type="text" 
+                placeholder="Search emojis..." 
+                className="pl-7 pr-2 py-1.5 text-sm border border-[#E9E9E7] rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-400 placeholder-[#9B9A97] w-full bg-[#F7F7F5] focus:bg-white transition-colors"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
          </div>
       </div>
 
