@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { EmojiDatabase } from './components/EmojiDatabase';
 import { EmojiPage } from './components/EmojiPage';
 import { AdminPage } from './components/AdminPage';
