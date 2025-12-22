@@ -1,25 +1,23 @@
 import { EmojiRecord } from '../types';
 
-const STORAGE_KEY = 'emoji_db_csv';
+const STORAGE_KEY_CSV = 'emoji_db_csv';
 
 export const fetchEmojis = async (): Promise<EmojiRecord[]> => {
-  // 1. Try fetching from LocalStorage first (User imported data)
+  // 1. Try fetching from LocalStorage CSV (User imported data manually via Admin)
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY_CSV);
     if (stored) {
-      console.log("Loading emojis from local storage...");
+      console.log("Loading emojis from local storage CSV...");
       const parsed = parseCSV(stored);
       if (parsed.length > 0) {
           return parsed;
       }
-      console.warn("Local storage data found but parsed to empty array. Falling back.");
     }
   } catch (e) {
     console.error("Failed to parse local storage CSV:", e);
-    // We do not return here, we let it fall back to the static file
   }
 
-  // 2. Fallback to static CSV file
+  // 2. Fallback to static CSV file (Default behavior)
   try {
     const response = await fetch('/emojis.csv');
     if (!response.ok) {
@@ -50,7 +48,7 @@ export const saveEmojisCSV = (csvText: string) => {
             throw new Error("No valid emoji records found in the provided CSV.");
         }
         // If valid, save
-        localStorage.setItem(STORAGE_KEY, csvText);
+        localStorage.setItem(STORAGE_KEY_CSV, csvText);
     } catch (e) {
         console.error("Validation failed:", e);
         throw e; // Re-throw to let UI know
@@ -58,7 +56,7 @@ export const saveEmojisCSV = (csvText: string) => {
 };
 
 export const clearEmojisData = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY_CSV);
 };
 
 export function parseCSV(csvText: string): EmojiRecord[] {
@@ -72,18 +70,16 @@ export function parseCSV(csvText: string): EmojiRecord[] {
     const line = lines[i].trim();
     if (!line) continue;
     
-    // Basic validation: line must contain at least a few commas
+    // Basic validation
     if (line.split(',').length < 3) continue;
 
     try {
         const cols = parseCSVLine(line);
         
-        // Ensure we have enough columns (slug, emoji, name)
+        // Skip lines that look like duplicate headers
+        if (cols[0] === 'slug' && cols[1] === 'emoji') continue;
+        
         if (cols.length < 3) continue;
-
-        // CSV Header Mapping (assumed):
-        // 0: slug, 1: emoji, 2: name, 3: description, 4: trivia
-        // 5: common_uses, 6: related_emojis, 7: updated_at, 8: category, 9: group
 
         let common_uses: string[] = [];
         try {
@@ -127,7 +123,6 @@ export function parseCSV(csvText: string): EmojiRecord[] {
           group: cols[9]
         });
     } catch (lineError) {
-        console.warn(`Skipping invalid line ${i}:`, lineError);
         continue;
     }
   }
