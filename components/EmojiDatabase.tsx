@@ -38,15 +38,11 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
       {/* Page Header */}
       <div className="group relative pt-[10vh] pb-8 px-12 md:px-24">
         <div className="text-7xl mb-6">🗃️</div>
-        <h1 className="text-4xl font-bold text-[#37352F] notion-serif mb-4">Master Emoji Database</h1>
+        <h1 className="text-4xl font-bold text-[#37352F] notion-serif mb-4">Emoji PNG Converter</h1>
         
         <div className="flex items-center text-[#787774] space-x-4 text-sm border-b border-[#E9E9E7] pb-4">
-            <span className="flex items-center gap-1 hover:bg-[#efefef] px-2 py-1 rounded cursor-pointer transition-colors">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                {data.length} records
-            </span>
             <span className="hover:bg-[#efefef] px-2 py-1 rounded cursor-pointer transition-colors">
-                Last edited today
+                Convert any emoji to a high-resolution PNG file. Public database of 1635 emojis in PNG.
             </span>
         </div>
       </div>

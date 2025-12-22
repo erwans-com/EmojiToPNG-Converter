@@ -45,7 +45,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
                     <Link to="/" className="flex items-center gap-1 hover:bg-[#E9E9E7] px-1.5 py-0.5 rounded transition-colors text-inherit decoration-0">
                          <span>🗃️</span>
-                         <span className="underline decoration-transparent hover:decoration-[#37352F]">Master Emoji Database</span>
+                         <span className="underline decoration-transparent hover:decoration-[#37352F]">Emoji PNG Converter</span>
                     </Link>
                     
                     {pathSegments.length > 0 && (

@@ -134,7 +134,7 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
 
         {/* Title */}
         <h1 className="text-4xl font-bold text-[#37352F] notion-serif mb-6 border-b border-transparent focus:border-[#E9E9E7] outline-none">
-            {record.name}
+            "{record.name}" emoji PNG download {record.emoji}
         </h1>
 
         {/* Properties / Meta */}
@@ -174,48 +174,11 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
 
         <hr className="border-[#E9E9E7] mb-12" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-12">
-                {/* Info Block */}
-                <section>
-                    <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-4">
-                        <BookOpen size={20} className="text-[#E16D46]" />
-                        Description
-                    </h2>
-                    <div className="text-[#37352F] leading-relaxed">
-                        {record.info || "No description available for this emoji."}
-                    </div>
-                </section>
-
-                {/* Common Uses */}
-                <section>
-                    <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-4">
-                        <CornerDownRight size={20} className="text-[#E16D46]" />
-                        Common Uses
-                    </h2>
-                    <div className="pl-4 border-l-2 border-[#E16D46] bg-[#F7F7F5] py-2 rounded-r">
-                       {renderList(record.common_uses)}
-                    </div>
-                </section>
-                
-                 {/* Related Emojis */}
-                {relatedList.length > 0 && (
-                    <section>
-                         <h2 className="text-xl font-semibold text-[#37352F] notion-serif mb-4">Related</h2>
-                         <div className="flex flex-wrap gap-2">
-                             {relatedList.map((e, i) => (
-                                 <span key={i} className="text-2xl cursor-pointer hover:bg-[#E9E9E7] p-2 rounded transition-colors" title="Click to view">
-                                     {e.trim()}
-                                 </span>
-                             ))}
-                         </div>
-                    </section>
-                )}
-            </div>
-
-            <div className="space-y-8">
-                {/* Generator Section (Right Column on Desktop) */}
-                 <div className="bg-white border border-[#E9E9E7] rounded-lg shadow-sm p-4 sticky top-20">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+             {/* Left Column: Generator (Top-Left on Desktop) */}
+             <div>
+                 <div className="bg-white border border-[#E9E9E7] rounded-lg shadow-sm p-4">
                     <div className="bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50 border border-[#E9E9E7] rounded flex items-center justify-center p-8 aspect-square relative overflow-hidden group">
                         {isGenerating ? (
                             <div className="flex flex-col items-center gap-2 text-[#9B9A97]">
@@ -254,18 +217,59 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {/* Trivia */}
+            {/* Right Column: Description */}
+            <div className="space-y-6">
                 <section>
-                    <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-3">
-                        <Lightbulb size={20} className="text-[#E16D46]" />
-                        Trivia
+                    <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-4">
+                        <BookOpen size={20} className="text-[#E16D46]" />
+                        Description
                     </h2>
-                    <div className="text-sm text-[#37352F] bg-yellow-50 p-4 rounded border border-yellow-100 italic">
-                        {renderList(record.trivia)}
+                    <div className="text-[#37352F] leading-relaxed">
+                        {record.info || "No description available for this emoji."}
                     </div>
                 </section>
             </div>
+        </div>
+
+        {/* Bottom Content Blocks */}
+        <div className="space-y-12">
+             {/* Common Uses */}
+             <section>
+                <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-4">
+                    <CornerDownRight size={20} className="text-[#E16D46]" />
+                    Common Uses
+                </h2>
+                <div className="pl-4 border-l-2 border-[#E16D46] bg-[#F7F7F5] py-2 rounded-r">
+                   {renderList(record.common_uses)}
+                </div>
+            </section>
+
+             {/* Trivia */}
+             <section>
+                <h2 className="text-xl font-semibold text-[#37352F] notion-serif flex items-center gap-2 mb-3">
+                    <Lightbulb size={20} className="text-[#E16D46]" />
+                    Trivia
+                </h2>
+                <div className="text-sm text-[#37352F] bg-yellow-50 p-4 rounded border border-yellow-100 italic">
+                    {renderList(record.trivia)}
+                </div>
+            </section>
+            
+             {/* Related Emojis */}
+            {relatedList.length > 0 && (
+                <section>
+                     <h2 className="text-xl font-semibold text-[#37352F] notion-serif mb-4">Related</h2>
+                     <div className="flex flex-wrap gap-2">
+                         {relatedList.map((e, i) => (
+                             <span key={i} className="text-2xl cursor-pointer hover:bg-[#E9E9E7] p-2 rounded transition-colors" title="Click to view">
+                                 {e.trim()}
+                             </span>
+                         ))}
+                     </div>
+                </section>
+            )}
         </div>
         
         <div className="mt-20 pt-8 border-t border-[#E9E9E7] text-center text-[#9B9A97] text-xs">
