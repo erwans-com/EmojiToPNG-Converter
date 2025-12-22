@@ -5,7 +5,7 @@ import { EmojiPage } from './components/EmojiPage';
 import { AdminPage } from './components/AdminPage';
 import { fetchEmojis } from './services/api';
 import { EmojiRecord } from './types';
-import { Shuffle, Database } from 'lucide-react';
+import { Shuffle, Database, LayoutGrid } from 'lucide-react';
 
 const TopNavbar: React.FC<{ data: EmojiRecord[] }> = ({ data }) => {
   const navigate = useNavigate();
@@ -24,13 +24,13 @@ const TopNavbar: React.FC<{ data: EmojiRecord[] }> = ({ data }) => {
          <div className="flex items-center gap-1 text-sm text-[#37352F] overflow-hidden whitespace-nowrap flex-1">
             <Link to="/" className="flex items-center gap-2 hover:bg-[#E9E9E7] px-2 py-1 rounded transition-colors text-inherit decoration-0">
                  <span className="text-lg">🧁</span>
-                 <span className="font-semibold hidden md:inline">EmojiToPNG</span>
+                 <span className="font-semibold hidden sm:inline">EmojiToPNG</span>
             </Link>
             
             {pathSegments.length > 0 && (
                 <>
                     <span className="text-[#9B9A97] text-xs">/</span>
-                    <span className="px-1.5 py-0.5 font-medium truncate max-w-[150px] md:max-w-none">
+                    <span className="px-1.5 py-0.5 font-medium truncate max-w-[100px] md:max-w-none">
                         {decodeURIComponent(pathSegments[pathSegments.length - 1])}
                     </span>
                 </>
@@ -38,16 +38,13 @@ const TopNavbar: React.FC<{ data: EmojiRecord[] }> = ({ data }) => {
          </div>
          
          <div className="flex items-center gap-2 md:gap-4 text-[#37352F] text-sm">
-             <Link to="/" className="hidden md:flex items-center gap-1 hover:bg-[#E9E9E7] px-2 py-1 rounded cursor-pointer transition-colors">
-                 <Database size={14} />
-                 <span>Database</span>
-             </Link>
-             <Link to="/admin" className="hidden md:block hover:bg-[#E9E9E7] px-2 py-1 rounded cursor-pointer transition-colors text-xs text-[#9B9A97]">
-                 Admin
+             <Link to="/" className="flex items-center gap-1 hover:bg-[#E9E9E7] px-2 py-1.5 rounded cursor-pointer transition-colors">
+                 <LayoutGrid size={16} />
+                 <span className="hidden md:inline">Categories</span>
              </Link>
              <button 
                 onClick={handleRandom}
-                className="flex items-center gap-1.5 hover:bg-[#E9E9E7] px-3 py-1.5 rounded cursor-pointer transition-colors border border-[#E9E9E7] shadow-sm"
+                className="flex items-center gap-1.5 hover:bg-[#E9E9E7] px-3 py-1.5 rounded cursor-pointer transition-colors border border-[#E9E9E7] shadow-sm bg-white"
              >
                  <Shuffle size={14} />
                  <span className="hidden md:inline">Random Emoji</span>

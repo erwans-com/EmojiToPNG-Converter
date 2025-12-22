@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { EmojiRecord } from '../types';
-import { Download, RefreshCw, Image as ImageIcon, Lightbulb, BookOpen, Hash, CornerDownRight, Copy, Check } from 'lucide-react';
+import { Download, RefreshCw, Image as ImageIcon, Lightbulb, BookOpen, Hash, CornerDownRight, Copy, Check, Info } from 'lucide-react';
 
 interface Props {
   data: EmojiRecord[];
@@ -133,9 +133,12 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-6 border-b border-transparent focus:border-[#E9E9E7] outline-none">
+        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-2 border-b border-transparent focus:border-[#E9E9E7] outline-none">
             "{record.name}" emoji PNG download {record.emoji}
         </h1>
+        <p className="text-lg text-[#787774] mb-8">
+            Convert the {record.emoji} {record.name} emoji into a high-resolution PNG file.
+        </p>
 
         {/* Properties / Meta */}
         <div className="space-y-1 mb-12">
@@ -271,9 +274,35 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
                 </section>
             )}
         </div>
+
+        {/* SEO Block */}
+        <div className="mt-20 p-8 bg-[#F7F7F5] rounded-lg border border-[#E9E9E7] text-[#37352F]">
+            <h2 className="text-xl font-semibold notion-serif flex items-center gap-2 mb-4">
+                <Info size={20} className="text-[#9B9A97]" />
+                How to use the {record.name} Emoji PNG
+            </h2>
+            <div className="space-y-4 text-sm leading-relaxed">
+                <p>
+                    This tool allows you to generate and download a high-quality, transparent PNG image of the <strong>{record.emoji} {record.name} emoji</strong>. 
+                    We utilize your device's native emoji font system to render the image, ensuring it looks sharp and authentic at resolutions up to 1024x1024 pixels.
+                </p>
+                <p>
+                    <strong>Perfect for Designers & Creators:</strong>
+                </p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>Social Media: Create engaging thumbnails for YouTube, Instagram, or TikTok.</li>
+                    <li>Graphic Design: Import directly into Adobe Photoshop, Canva, Figma, or Illustrator.</li>
+                    <li>Presentations: Add visual flair to PowerPoint or Google Slides decks.</li>
+                    <li>Web Design: Use as high-res icons or decorative elements without pixelation.</li>
+                </ul>
+                <p className="text-[#787774] text-xs pt-2">
+                    Note: The appearance of the emoji depends on the device you are currently using (e.g., Apple, Google, Samsung, or Microsoft style). The downloaded PNG will match what you see on your screen.
+                </p>
+            </div>
+        </div>
         
-        <div className="mt-20 pt-8 border-t border-[#E9E9E7] text-center text-[#9B9A97] text-xs">
-            <p>Emoji content provided by Supabase • {record.emoji} • Fetched for static display</p>
+        <div className="mt-12 pt-8 border-t border-[#E9E9E7] text-center text-[#9B9A97] text-xs">
+            <p>EmojiToPNG.com: convert any emoji into a high-resolution PNG image.</p>
         </div>
       </div>
     </div>

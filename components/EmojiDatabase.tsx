@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { EmojiRecord } from '../types';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, ArrowUpDown, MoreHorizontal, LayoutGrid } from 'lucide-react';
+import { Search, Filter, ArrowUpDown, LayoutGrid } from 'lucide-react';
 
 interface Props {
   data: EmojiRecord[];
@@ -32,7 +32,7 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
 
   if (isLoading) {
     return (
-        <div className="p-12 space-y-4 max-w-[900px] mx-auto">
+        <div className="p-12 space-y-4 max-w-[1000px] mx-auto">
              <div className="h-8 bg-gray-200 rounded w-1/3 animate-pulse"></div>
              <div className="h-4 bg-gray-100 rounded w-1/4 animate-pulse"></div>
              <div className="mt-8 space-y-2">
@@ -49,7 +49,7 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
       {/* Page Header */}
       <div className="group relative pt-12 pb-8 px-4 md:px-24">
         <div className="text-6xl md:text-7xl mb-6">🗃️</div>
-        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-4">Emoji PNG Converter</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-4">Emoji to PNG Converter</h1>
         
         <div className="flex items-center text-[#787774] space-x-4 text-sm border-b border-[#E9E9E7] pb-4">
             <span className="bg-[#efefef] px-2 py-1 rounded cursor-pointer transition-colors block w-fit">
