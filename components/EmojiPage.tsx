@@ -145,9 +145,7 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
     <div className="w-full pb-24 animate-in fade-in duration-300">
       {/* Cover Image Placeholder */}
       <div className="h-[20vh] md:h-[30vh] w-full bg-gradient-to-r from-pink-50 to-blue-50 relative group">
-         <div className="absolute bottom-4 right-4 md:right-12 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 px-3 py-1 rounded shadow-sm text-xs text-[#37352F] cursor-pointer hover:bg-white border border-[#E9E9E7]">
-             Change cover
-         </div>
+         {/* Cover image content */}
       </div>
 
       <div className="max-w-[900px] mx-auto px-4 md:px-24 relative -mt-12 md:-mt-16">
@@ -168,7 +166,7 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
             "{record.name}" emoji PNG download {record.emoji}
         </h1>
         <p className="text-lg text-[#787774] mb-8">
-            Convert the {record.emoji} {record.name} emoji into a high-resolution PNG file.
+            Download the high-resolution {record.emoji} {record.name} emoji PNG with transparent background. Perfect for iOS, Android, macOS, and Windows designs.
         </p>
 
         {/* Properties / Meta */}
