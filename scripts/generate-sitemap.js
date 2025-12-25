@@ -42,10 +42,10 @@ try {
         { loc: `${DOMAIN}/`, freq: 'daily', priority: '1.0' },
     ];
 
-    // Dynamic Routes (using hash routing as requested)
+    // Dynamic Routes (clean URLs)
     slugs.forEach(slug => {
         urls.push({
-            loc: `${DOMAIN}/#/emoji/${slug}`,
+            loc: `${DOMAIN}/emoji/${slug}`,
             freq: 'weekly',
             priority: '0.8'
         });
