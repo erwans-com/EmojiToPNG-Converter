@@ -6,12 +6,48 @@ const CSV_FILE = path.join(__dirname, '..', 'emojis.csv');
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const SITEMAP_FILE = path.join(PUBLIC_DIR, 'sitemap.xml');
 
-// Helper to slugify category
+// Helper to slugify text
 const toSlug = (text) => {
+  if (!text) return '';
   return text.toLowerCase()
     .replace(/ & /g, '-')
     .replace(/ /g, '-')
     .replace(/[^\w-]+/g, '');
+};
+
+// Robust CSV Line Parser to handle quoted commas correctly
+const parseCSVLine = (text) => {
+    const result = [];
+    let curVal = "";
+    let inQuote = false;
+    
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        if (inQuote) {
+            if (char === '"') {
+                if (i + 1 < text.length && text[i+1] === '"') {
+                    curVal += '"';
+                    i++; 
+                } else {
+                    inQuote = false;
+                }
+            } else {
+                curVal += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuote = true;
+            } else if (char === ',') {
+                result.push(curVal);
+                curVal = "";
+            } else {
+                curVal += char;
+            }
+        }
+    }
+    result.push(curVal);
+    return result;
 };
 
 // Ensure public directory exists
@@ -19,52 +55,55 @@ if (!fs.existsSync(PUBLIC_DIR)) {
     fs.mkdirSync(PUBLIC_DIR, { recursive: true });
 }
 
-// Read CSV
 try {
     const csvData = fs.readFileSync(CSV_FILE, 'utf8');
     const lines = csvData.split(/\r?\n/);
-    const slugs = [];
-    const categories = new Set();
+    const validEmojis = [];
+    const validCategories = new Set();
 
-    // Skip headers and parse
-    for (let i = 0; i < lines.length; i++) {
+    // Skip headers (assuming first row is header)
+    // We start at i=1
+    for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
-        // Simple parse assuming CSV structure
-        // Column 0: slug
-        // Column 8: category
-        const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-        // Fallback split if match fails or simple structure
-        const cols = line.split(',');
+        const cols = parseCSVLine(line);
 
-        // Basic validation: slug is column 0
+        // CSV Structure from code: 
+        // 0: slug, 1: emoji, 2: name, ... 8: category, 9: group
+        // Ensure we have enough columns
+        if (cols.length < 9) continue;
+
         let slug = cols[0];
-        // Category is column 8 (index 8)
         let category = cols[8];
 
-        // Clean up quotes
+        // Cleanup
         if (slug) slug = slug.replace(/^"|"$/g, '').trim();
         if (category) category = category.replace(/^"|"$/g, '').trim();
 
-        // Skip header rows or empty slugs
+        // Skip invalid rows
         if (!slug || slug.toLowerCase() === 'slug') continue;
 
-        slugs.push(slug);
-        if (category) {
-            categories.add(category);
+        validEmojis.push(slug);
+
+        // Filter Categories:
+        // Real categories are short (e.g. "Food & Drink"). 
+        // Bad parsing often puts long descriptions here.
+        if (category && category.length < 30 && !category.includes('{') && !category.includes('[')) {
+            validCategories.add(category);
         }
     }
 
-    console.log(`Found ${slugs.length} emojis and ${categories.size} categories to index.`);
+    console.log(`Parsed ${validEmojis.length} total emojis.`);
+    console.log(`Found ${validCategories.size} unique categories.`);
 
-    // Static Routes
+    // 1. Static Routes
     const urls = [
         { loc: `${DOMAIN}/`, freq: 'daily', priority: '1.0' },
     ];
 
-    // Category Routes
-    categories.forEach(cat => {
+    // 2. Category Routes
+    validCategories.forEach(cat => {
         const slug = toSlug(cat);
         if (slug) {
             urls.push({
@@ -75,8 +114,9 @@ try {
         }
     });
 
-    // Dynamic Routes (clean URLs)
-    slugs.forEach(slug => {
+    // 3. Dynamic Routes (Limit to Top 150)
+    const top150 = validEmojis.slice(0, 150);
+    top150.forEach(slug => {
         urls.push({
             loc: `${DOMAIN}/emoji/${slug}`,
             freq: 'weekly',
@@ -95,7 +135,7 @@ ${urls.map(u => `  <url>
 </urlset>`;
 
     fs.writeFileSync(SITEMAP_FILE, sitemapContent);
-    console.log(`Sitemap generated successfully at ${SITEMAP_FILE}`);
+    console.log(`Sitemap generated successfully at ${SITEMAP_FILE} with ${urls.length} entries.`);
 
 } catch (error) {
     console.error('Error generating sitemap:', error);
