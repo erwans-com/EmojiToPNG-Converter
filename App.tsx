@@ -83,6 +83,7 @@ export default function App() {
         <div className="flex-1 overflow-y-auto w-full">
             <Routes>
               <Route path="/" element={<EmojiDatabase data={data} isLoading={loading} />} />
+              <Route path="/category/:slug" element={<EmojiDatabase data={data} isLoading={loading} />} />
               <Route path="/emoji/:slug" element={<EmojiPage data={data} />} />
               <Route path="/admin" element={<AdminPage />} />
             </Routes>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { EmojiRecord } from '../types';
 import { Download, RefreshCw, Image as ImageIcon, Lightbulb, BookOpen, Hash, CornerDownRight, Copy, Check, Info } from 'lucide-react';
+import { toSlug } from '../services/api';
 
 interface Props {
   data: EmojiRecord[];
@@ -197,9 +198,9 @@ export const EmojiPage: React.FC<Props> = ({ data }) => {
                     <span>Category</span>
                 </div>
                 <div className="flex-1">
-                     <span className="px-1.5 py-0.5 bg-orange-100 text-orange-800 text-sm rounded">
+                     <Link to={record.category ? `/category/${toSlug(record.category)}` : '/'} className="px-1.5 py-0.5 bg-orange-100 text-orange-800 text-sm rounded hover:bg-orange-200 transition-colors">
                         {record.category || 'Standard'}
-                     </span>
+                     </Link>
                 </div>
             </div>
         </div>

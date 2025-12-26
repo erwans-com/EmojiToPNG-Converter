@@ -154,3 +154,10 @@ function parseCSVLine(text: string): string[] {
     result.push(curVal);
     return result;
 }
+
+export const toSlug = (text: string): string => {
+  return text.toLowerCase()
+    .replace(/ & /g, '-')
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '');
+};

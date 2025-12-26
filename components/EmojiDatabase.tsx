@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { EmojiRecord } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { toSlug } from '../services/api';
 
 interface Props {
   data: EmojiRecord[];
@@ -10,8 +11,8 @@ interface Props {
 
 export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('All');
+  const { slug } = useParams<{ slug: string }>();
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   // Extract Categories and sort by count (descending)
   const categories = useMemo(() => {
@@ -28,16 +29,39 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
       return ['All', ...sortedCats];
   }, [data]);
 
+  // Determine active category from URL slug
+  const activeCategory = useMemo(() => {
+    if (!slug) return 'All';
+    return categories.find(cat => toSlug(cat) === slug) || 'All';
+  }, [slug, categories]);
+
   const filteredData = data.filter(item => {
     const matchesSearch = 
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         item.emoji.includes(searchTerm) ||
         (typeof item.info === 'string' && item.info.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesCategory = activeTab === 'All' || item.category === activeTab;
+    const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
 
     return matchesSearch && matchesCategory;
   });
+
+  // Update Page Title and Meta Description based on Category
+  useEffect(() => {
+    const metaDescription = document.querySelector('meta[name="description"]');
+    
+    if (activeCategory === 'All') {
+        document.title = "Emoji to PNG Converter | EmojiToPNG";
+        if (metaDescription) {
+            metaDescription.setAttribute('content', "Free online tool to convert any emoji into a high-resolution 1024px PNG image. Browse our database of 1600+ emojis. Perfect for graphic design, social media, Canva, and Figma.");
+        }
+    } else {
+        document.title = `${activeCategory} Emojis - Free PNG Download | EmojiToPNG`;
+        if (metaDescription) {
+            metaDescription.setAttribute('content', `Browse our collection of ${activeCategory} emojis. Download high-resolution transparent PNGs for all ${activeCategory.toLowerCase()} icons free.`);
+        }
+    }
+  }, [activeCategory]);
 
   if (isLoading) {
     return (
@@ -57,13 +81,23 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
     <div className="max-w-[1000px] mx-auto pb-24">
       {/* Page Header */}
       <div className="group relative pt-12 pb-8 px-4 md:px-24">
-        <div className="text-6xl md:text-7xl mb-6">🗃️</div>
-        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-4">Emoji to PNG Converter – Free Emoji PNG Downloads</h1>
+        <div className="text-6xl md:text-7xl mb-6">
+            {activeCategory === 'All' ? '🗃️' : filteredData[0]?.emoji || '📂'}
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-[#37352F] notion-serif mb-4">
+            {activeCategory === 'All' ? 'Emoji to PNG Converter – Free Emoji PNG Downloads' : `${activeCategory} Emojis`}
+        </h1>
         
         <div className="flex items-center text-[#787774] space-x-4 text-sm border-b border-[#E9E9E7] pb-4">
             <span className="bg-[#efefef] px-2 py-1 rounded cursor-pointer transition-colors block w-fit">
-                Convert any emoji to a high-resolution PNG with transparent background.
-                <span className="hidden md:inline"> Free emoji PNG downloads from a public library of 1,600+ emojis, perfect for designers, developers, and content creators.</span>
+                {activeCategory === 'All' ? (
+                    <>
+                        Convert any emoji to a high-resolution PNG with transparent background.
+                        <span className="hidden md:inline"> Free emoji PNG downloads from a public library of 1,600+ emojis, perfect for designers, developers, and content creators.</span>
+                    </>
+                ) : (
+                    `Browse ${filteredData.length} ${activeCategory.toLowerCase()} emojis and convert them to high-resolution PNGs.`
+                )}
             </span>
         </div>
       </div>
@@ -72,17 +106,17 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
       <div className="px-4 md:px-24 mb-6">
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 mask-linear">
               {categories.map(cat => (
-                  <button
+                  <Link
                     key={cat}
-                    onClick={() => setActiveTab(cat)}
-                    className={`whitespace-nowrap px-3 py-1.5 rounded-md text-sm font-medium transition-colors border ${
-                        activeTab === cat 
+                    to={cat === 'All' ? '/' : `/category/${toSlug(cat)}`}
+                    className={`whitespace-nowrap px-3 py-1.5 rounded-md text-sm font-medium transition-colors border block ${
+                        activeCategory === cat 
                         ? 'bg-[#E9E9E7] text-[#37352F] border-[#d4d4d4]' 
                         : 'text-[#787774] hover:bg-[#F7F7F5] border-transparent hover:border-[#E9E9E7]'
                     }`}
                   >
                       {cat}
-                  </button>
+                  </Link>
               ))}
           </div>
       </div>
@@ -93,7 +127,7 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
             <Search size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#9B9A97]" />
             <input 
                 type="text" 
-                placeholder="Search emojis..." 
+                placeholder={`Search ${activeCategory === 'All' ? 'emojis' : activeCategory}...`}
                 className="pl-7 pr-2 py-1.5 text-sm border border-[#E9E9E7] rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-400 placeholder-[#9B9A97] w-full bg-[#F7F7F5] focus:bg-white transition-colors"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -150,7 +184,7 @@ export const EmojiDatabase: React.FC<Props> = ({ data, isLoading }) => {
                         <tr>
                             <td colSpan={4} className="py-12 text-center text-[#9B9A97] text-sm">
                                 <p>No emojis found matching "{searchTerm}"</p>
-                                {activeTab !== 'All' && <p className="text-xs mt-1">Try switching categories or clearing filters.</p>}
+                                {activeCategory !== 'All' && <p className="text-xs mt-1">Try switching categories or clearing filters.</p>}
                             </td>
                         </tr>
                     )}

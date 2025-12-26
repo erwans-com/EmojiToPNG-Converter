@@ -6,6 +6,14 @@ const CSV_FILE = path.join(__dirname, '..', 'emojis.csv');
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const SITEMAP_FILE = path.join(PUBLIC_DIR, 'sitemap.xml');
 
+// Helper to slugify category
+const toSlug = (text) => {
+  return text.toLowerCase()
+    .replace(/ & /g, '-')
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '');
+};
+
 // Ensure public directory exists
 if (!fs.existsSync(PUBLIC_DIR)) {
     fs.mkdirSync(PUBLIC_DIR, { recursive: true });
@@ -16,31 +24,56 @@ try {
     const csvData = fs.readFileSync(CSV_FILE, 'utf8');
     const lines = csvData.split(/\r?\n/);
     const slugs = [];
+    const categories = new Set();
 
     // Skip headers and parse
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
 
-        // Simple parse: slug is the first column. 
-        // Assuming slug does not contain commas as per the provided format.
-        const firstCommaIndex = line.indexOf(',');
-        if (firstCommaIndex === -1) continue;
+        // Simple parse assuming CSV structure
+        // Column 0: slug
+        // Column 8: category
+        const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+        // Fallback split if match fails or simple structure
+        const cols = line.split(',');
 
-        const slug = line.substring(0, firstCommaIndex).trim();
+        // Basic validation: slug is column 0
+        let slug = cols[0];
+        // Category is column 8 (index 8)
+        let category = cols[8];
+
+        // Clean up quotes
+        if (slug) slug = slug.replace(/^"|"$/g, '').trim();
+        if (category) category = category.replace(/^"|"$/g, '').trim();
 
         // Skip header rows or empty slugs
-        if (slug.toLowerCase() === 'slug' || !slug) continue;
+        if (!slug || slug.toLowerCase() === 'slug') continue;
 
         slugs.push(slug);
+        if (category) {
+            categories.add(category);
+        }
     }
 
-    console.log(`Found ${slugs.length} emojis to index.`);
+    console.log(`Found ${slugs.length} emojis and ${categories.size} categories to index.`);
 
     // Static Routes
     const urls = [
         { loc: `${DOMAIN}/`, freq: 'daily', priority: '1.0' },
     ];
+
+    // Category Routes
+    categories.forEach(cat => {
+        const slug = toSlug(cat);
+        if (slug) {
+            urls.push({
+                loc: `${DOMAIN}/category/${slug}`,
+                freq: 'weekly',
+                priority: '0.9'
+            });
+        }
+    });
 
     // Dynamic Routes (clean URLs)
     slugs.forEach(slug => {
