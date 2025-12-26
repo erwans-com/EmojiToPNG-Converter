@@ -6,6 +6,23 @@ const CSV_FILE = path.join(__dirname, '..', 'emojis.csv');
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const SITEMAP_FILE = path.join(PUBLIC_DIR, 'sitemap.xml');
 
+// High priority emojis to include in sitemap
+const CURATED_LIST = `
+✨ 👉 🔥 ✅ 💡 🚀 🌟 👇 🎉 ❤️ 📌 💪 💬 👀 🔗 🚨 🌿 🌍 💥 ✔️ 📅 🎯 ⚡ 🤔 ➡️ 🙌 🧠 💫 💙 🌱
+😂 😭 🥺 ❤️‍🩹 🫶 🤍 🩷 🧡 💛 💚 💜 🖤 💔 💕 💖 💗 💓 💞 💘 💝
+😍 🥰 😘 😗 😙 😚 😊 😄 😃 😀 😁 😆 😉 😋 😛 😜 🤪 😎 🤩 🥳 😇 🤗
+😅 🤣 🙂 🙃 😌 😍 🤤 😴 😪 😮 😯 😲 😳 🥵 🥶 😱 😨 😰 😓 😥 😢 😤 😠 😡 🤬
+🙏 🤝 👍 👎 👏 🤲 🫶 ✌️ 🤟 🤘 🤙 👌 🤌 ✋ 🖐️ 🖖 🤚 🫱 🫲 👊 ✊ 🤛 🤜
+🫡 🫠 🥹 😶‍🌫️ 🤐 😶 😑 😬 🙄 😒 😏 😔 😞 😟 ☹️ 🙁
+💯 ✅ ✔️ ✖️ ❌ ⚠️ ⛔ 🚫 ❓ ❗ ⁉️ ‼️ 🔥 ⭐ 🌟 ✨ 🌈 ☀️ 🌙 🌧️ ⛈️ ❄️
+🎁 🎄 🎃 🎀 🎈 🎂 🥂 🍾 🍻 🍺 ☕ 🍕 🍔 🍟 🌮 🌯 🍣 🍜 🍩 🍪 🍫 🍓 🍉 🍌 🍎
+⚽ 🏆 🥇 🥈 🥉 🎮 🎧 🎵 🎶 📷 📸 🎬 📝 📌 📍 🧾 📣 🔥 💡 🔔
+📱 💻 ⌚ 🕒 ⏰ 🗓️ 📅 🧭 🔎 🔍 🔑 🔒 🔓 🧠 💬 🗣️ 👤 👥
+🚗 ✈️ 🚀 🚲 🚌 🚆 🚇 🚢 🌍 🗺️ 📍
+🐶 🐱 🐻 🐼 🐨 🐸 🐵 🦊 🐯 🦁 🐮 🐷 🐰 🐔 🐧 🐦 🐤 🐣 🐙 🐠 🐳 🐬 🦋
+🌿 🌱 🌳 🌲 🌵 🌸 🌺 🌻 🌼 🌹 🍀 🌊 🔥
+`;
+
 // Helper to slugify text
 const toSlug = (text) => {
   if (!text) return '';
@@ -58,11 +75,15 @@ if (!fs.existsSync(PUBLIC_DIR)) {
 try {
     const csvData = fs.readFileSync(CSV_FILE, 'utf8');
     const lines = csvData.split(/\r?\n/);
-    const validEmojis = [];
+    
+    // Create a Set of target emojis for O(1) lookup
+    // Using spread operator [...] on string handles emoji surrogate pairs correctly
+    const targetEmojis = new Set([...CURATED_LIST.replace(/\s/g, '')]);
+    
+    const matchedEmojis = [];
     const validCategories = new Set();
 
     // Skip headers (assuming first row is header)
-    // We start at i=1
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
@@ -71,30 +92,32 @@ try {
 
         // CSV Structure from code: 
         // 0: slug, 1: emoji, 2: name, ... 8: category, 9: group
-        // Ensure we have enough columns
         if (cols.length < 9) continue;
 
         let slug = cols[0];
+        let emojiChar = cols[1];
         let category = cols[8];
 
         // Cleanup
         if (slug) slug = slug.replace(/^"|"$/g, '').trim();
+        if (emojiChar) emojiChar = emojiChar.replace(/^"|"$/g, '').trim();
         if (category) category = category.replace(/^"|"$/g, '').trim();
 
         // Skip invalid rows
-        if (!slug || slug.toLowerCase() === 'slug') continue;
+        if (!slug || slug.toLowerCase() === 'slug' || !emojiChar) continue;
 
-        validEmojis.push(slug);
-
-        // Filter Categories:
-        // Real categories are short (e.g. "Food & Drink"). 
-        // Bad parsing often puts long descriptions here.
+        // Add Categories (Validation to ensure clean category names)
         if (category && category.length < 30 && !category.includes('{') && !category.includes('[')) {
             validCategories.add(category);
         }
+
+        // Check if this emoji is in our curated list
+        if (targetEmojis.has(emojiChar)) {
+            matchedEmojis.push(slug);
+        }
     }
 
-    console.log(`Parsed ${validEmojis.length} total emojis.`);
+    console.log(`Parsed CSV. Found ${matchedEmojis.length} curated emojis out of requested set.`);
     console.log(`Found ${validCategories.size} unique categories.`);
 
     // 1. Static Routes
@@ -114,9 +137,8 @@ try {
         }
     });
 
-    // 3. Dynamic Routes (Limit to Top 150)
-    const top150 = validEmojis.slice(0, 150);
-    top150.forEach(slug => {
+    // 3. Dynamic Routes (Based on Curated List)
+    matchedEmojis.forEach(slug => {
         urls.push({
             loc: `${DOMAIN}/emoji/${slug}`,
             freq: 'weekly',
